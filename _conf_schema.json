@@ -1,0 +1,72 @@
+{
+    "api_key": {
+        "type": "string",
+        "description": "API Key",
+        "hint": "必填。从服务商获取",
+        "default": ""
+    },
+    "api_base": {
+        "type": "string",
+        "description": "API 端点",
+        "hint": "留空使用默认",
+        "default": ""
+    },
+    "model": {
+        "type": "string",
+        "description": "TTS 模型名",
+        "hint": "留空使用默认",
+        "default": ""
+    },
+    "use_custom_voice": {
+        "type": "bool",
+        "description": "使用自定义音色",
+        "hint": "开启后填入参考音频路径和文本。关闭则使用系统预设音色",
+        "default": false
+    },
+    "preset_voice": {
+        "type": "string",
+        "description": "预设音色",
+        "hint": "仅在关闭自定义音色时生效。可选: alex / anna / bella / benjamin / charles / claire / david / diana",
+        "default": "claire"
+    },
+    "reference_audio_path": {
+        "type": "string",
+        "description": "参考音频路径",
+        "hint": "仅在开启自定义音色时生效。本地 wav/mp3 文件的绝对路径",
+        "default": ""
+    },
+    "reference_text": {
+        "type": "string",
+        "description": "参考音频文本",
+        "hint": "仅在开启自定义音色时生效。音频中说话人的实际台词",
+        "default": ""
+    },
+    "keep_text": {
+        "type": "bool",
+        "description": "附带原文",
+        "hint": "开启后，在语音消息后附带输入给 TTS 的原文文本。关闭则只发送语音，不附带文本",
+        "default": false
+    },
+    "bracket_filter": {
+        "type": "bool",
+        "description": "过滤括号内容",
+        "hint": "开启后，TTS 朗读前自动移除（旁白）、【注】等内容。原文显示不受影响",
+        "default": true
+    },
+    "speed": {
+        "type": "float",
+        "description": "语速 (0.25 ~ 4.0)",
+        "default": 1.0
+    },
+    "gain": {
+        "type": "float",
+        "description": "音量增益 (-10 ~ 10)",
+        "default": 0
+    },
+    "timeout": {
+        "type": "int",
+        "description": "请求超时（秒）",
+        "hint": "TTS API 的最大等待时间",
+        "default": 30
+    }
+}

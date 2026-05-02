@@ -1,0 +1,134 @@
+import os
+import base64
+import uuid
+import httpx
+from astrbot.api.event import AstrMessageEvent
+from astrbot.api.star import Context, Star, register
+from astrbot.api.event.filter import on_decorating_result
+from astrbot import logger
+
+try:
+    from .filter import strip_brackets
+except ImportError:
+    import filter as _filter_mod
+    strip_brackets = _filter_mod.strip_brackets
+
+PRESET_VOICES = ("alex", "anna", "bella", "benjamin", "charles", "claire", "david", "diana")
+
+
+@register("astrbot_plugin_sf_tts", "FlandreX", "硅基流动 CosyVoice2 TTS", "1.0.0")
+class SfTTSPlugin(Star):
+    def __init__(self, context: Context, config: dict = None):
+        super().__init__(context)
+        self.config = config or {}
+        timeout = int(self.config.get("timeout", 30))
+        self.client = httpx.AsyncClient(timeout=timeout)
+        self._ref_b64 = ""
+        self._ref_text = ""
+
+    async def initialize(self):
+        if not self.config.get("use_custom_voice"):
+            return
+        ref_path = self.config.get("reference_audio_path", "").strip()
+        if ref_path and os.path.exists(ref_path):
+            try:
+                with open(ref_path, "rb") as f:
+                    self._ref_b64 = "data:audio/wav;base64," + base64.b64encode(f.read()).decode("ascii")
+                self._ref_text = self.config.get("reference_text", "").strip()
+                logger.info(f"[sf_tts] 参考音频已加载: {os.path.getsize(ref_path)}B")
+            except Exception as e:
+                logger.warning(f"[sf_tts] 加载参考音频失败: {e}")
+
+    @on_decorating_result()
+    async def on_decorate(self, event: AstrMessageEvent):
+        api_key = self.config.get("api_key", "").strip()
+        if not api_key:
+            logger.warning("[sf_tts] 未配置 api_key")
+            return
+
+        do_filter = self.config.get("bracket_filter", True)
+        keep_text = self.config.get("keep_text", False)
+        use_custom = self.config.get("use_custom_voice", False)
+        model = self.config.get("model", "") or "FunAudioLLM/CosyVoice2-0.5B"
+        api_base = self.config.get("api_base", "") or "https://api.siliconflow.cn/v1/audio/speech"
+        speed = float(self.config.get("speed", 1.0))
+        gain = float(self.config.get("gain", 0))
+
+        if use_custom:
+            if not self._ref_b64:
+                logger.warning("[sf_tts] 参考音频未加载")
+                return
+            voice_param = ""
+            ref_text = self._ref_text
+        else:
+            preset = self.config.get("preset_voice", "claire")
+            if preset not in PRESET_VOICES:
+                logger.warning(f"[sf_tts] 未知的 preset_voice: {preset}，已回退为 claire")
+                preset = "claire"
+            voice_param = f"FunAudioLLM/CosyVoice2-0.5B:{preset}"
+            ref_text = ""
+
+        result = event.get_result()
+        if not result:
+            return
+
+        from astrbot.core.message.components import Plain, Record
+
+        body_base = {
+            "model": model,
+            "voice": voice_param,
+            "response_format": "mp3",
+            "stream": False,
+            "speed": speed,
+            "gain": gain,
+        }
+        if use_custom:
+            body_base["references"] = [{"audio": self._ref_b64, "text": ref_text}]
+
+        new_chain = []
+        for comp in result.chain:
+            if not isinstance(comp, Plain) or not comp.text.strip():
+                new_chain.append(comp)
+                continue
+
+            text = comp.text
+            original = text
+            if do_filter:
+                text = strip_brackets(text)
+            if not text:
+                new_chain.append(comp)
+                continue
+
+            try:
+                body = {**body_base, "input": text}
+                r = await self.client.post(
+                    api_base,
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json=body,
+                )
+                if r.status_code == 200 and r.content:
+                    path = os.path.join(
+                        os.environ.get("TEMP", os.path.expanduser("~")),
+                        f"sf_tts_{uuid.uuid4().hex}.mp3",
+                    )
+                    with open(path, "wb") as f:
+                        f.write(r.content)
+                    new_chain.append(Record(file=path, url=path, text=original))
+                    logger.info(f"[sf_tts] TTS OK {len(r.content)}B, {text[:30]}...")
+                elif r.status_code == 200:
+                    logger.warning("[sf_tts] API 返回空音频")
+                else:
+                    logger.warning(f"[sf_tts] API {r.status_code}: {r.text[:300]}")
+            except Exception as e:
+                logger.error(f"[sf_tts] {type(e).__name__}: {e}")
+
+            if keep_text:
+                new_chain.append(Plain(original))
+
+        result.chain = new_chain
+
+    async def terminate(self):
+        await self.client.aclose()
