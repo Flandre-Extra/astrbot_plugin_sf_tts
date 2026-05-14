@@ -48,10 +48,6 @@ class SfTTSPlugin(Star):
             return
 
         do_filter = self.config.get("bracket_filter", True)
-        keep_text = self.config.get("keep_text", False)
-        if not keep_text and event.message_str.startswith("/"):
-            keep_text = True
-            logger.info("[sf_tts] 检测到指令，强制保留原文")
         use_custom = self.config.get("use_custom_voice", False)
         model = self.config.get("model", "") or "FunAudioLLM/CosyVoice2-0.5B"
         api_base = self.config.get("api_base", "") or "https://api.siliconflow.cn/v1/audio/speech"
@@ -75,6 +71,11 @@ class SfTTSPlugin(Star):
         result = event.get_result()
         if not result:
             return
+
+        keep_text = self.config.get("keep_text", False)
+        if not keep_text and not result.is_llm_result():
+            keep_text = True
+            logger.info("[sf_tts] 检测到系统指令，强制保留原文")
 
         from astrbot.core.message.components import Plain, Record
 
