@@ -22,7 +22,7 @@ class SfTTSPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
         self.config = config or {}
-        timeout = int(self.config.get("timeout", 30))
+        timeout = int(self.config.get("timeout", 120))
         self.client = httpx.AsyncClient(timeout=timeout)
         self._ref_b64 = ""
         self._ref_text = ""

@@ -67,6 +67,6 @@
         "type": "int",
         "description": "请求超时（秒）",
         "hint": "TTS API 的最大等待时间",
-        "default": 30
+        "default": 120
     }
 }
