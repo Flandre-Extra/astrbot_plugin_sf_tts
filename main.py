@@ -104,6 +104,7 @@ class SfTTSPlugin(Star):
                 new_chain.append(comp)
                 continue
 
+            tts_ok = False
             try:
                 body = {**body_base, "input": text}
                 r = await self.client.post(
@@ -122,6 +123,7 @@ class SfTTSPlugin(Star):
                     with open(path, "wb") as f:
                         f.write(r.content)
                     new_chain.append(Record(file=path, url=path, text=original))
+                    tts_ok = True
                     logger.info(f"[sf_tts] TTS OK {len(r.content)}B, {text[:30]}...")
                 elif r.status_code == 200:
                     logger.warning("[sf_tts] API 返回空音频")
@@ -132,6 +134,8 @@ class SfTTSPlugin(Star):
 
             if keep_text:
                 new_chain.append(Plain(original))
+            elif not tts_ok:
+                new_chain.append(comp)
 
         result.chain = new_chain
 
