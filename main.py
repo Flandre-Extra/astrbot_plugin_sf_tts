@@ -1,4 +1,5 @@
 import os
+import re
 import base64
 import uuid
 import httpx
@@ -95,6 +96,10 @@ class SfTTSPlugin(Star):
             original = text
             if do_filter:
                 text = strip_brackets(text)
+            text = re.sub(
+                r"[\U0001F000-\U0001FFFF]|[\U00002700-\U000027BF]|[\U0001F300-\U0001F9FF]",
+                "", text,
+            )
             if not text:
                 new_chain.append(comp)
                 continue
