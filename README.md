@@ -18,7 +18,7 @@ v1.0.6 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
 | `model` | string | 空 | 留空使用默认 |
 | `use_custom_voice` | bool | false | 开启使用自定义音色，关闭使用系统预设 |
 | `preset_voice` | string | claire | 预设音色：alex / anna / bella / benjamin / charles / claire / david / diana |
-| `custom_voice_uri` | string | 空 | 预置音色 URI（speech:xxx:xxx:xxx），填了用 URI 轻量调用，不填走 references 内联 base64。需实名认证 |
+| `custom_voice_uri` | string | 空 | 预置音色 URI（speech:xxx:xxx:xxx），填了用 URI 轻量调用，不填走 references 内联 base64。需实名认证。与 reference_audio_path 同时填写时后者被忽略并打印 warn |
 | `reference_audio_path` | string | 空 | 自定义模式下生效，本地 wav/mp3 绝对路径 |
 | `reference_text` | string | 空 | 自定义模式下生效，音频中实际台词 |
 | `keep_text` | bool | false | 附带原文（系统指令如 /reset 自动强制开启） |

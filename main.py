@@ -31,6 +31,8 @@ class SfTTSPlugin(Star):
         if not self.config.get("use_custom_voice"):
             return
         if self.config.get("custom_voice_uri", "").strip():
+            if self.config.get("reference_audio_path", "").strip():
+                logger.warning("[sf_tts] custom_voice_uri 已填，reference_audio_path 和 reference_text 将被忽略")
             logger.info("[sf_tts] 使用预置音色 URI，跳过本地音频加载")
             return
         ref_path = self.config.get("reference_audio_path", "").strip()
@@ -60,6 +62,8 @@ class SfTTSPlugin(Star):
         if use_custom:
             uri = self.config.get("custom_voice_uri", "").strip()
             if uri:
+                if self.config.get("reference_audio_path", "").strip():
+                    logger.warning("[sf_tts] custom_voice_uri 已填，reference_audio_path 和 reference_text 将被忽略")
                 voice_param = uri
                 ref_text = ""
             elif self._ref_b64:
