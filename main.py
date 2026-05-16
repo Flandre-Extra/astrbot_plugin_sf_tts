@@ -30,6 +30,9 @@ class SfTTSPlugin(Star):
     async def initialize(self):
         if not self.config.get("use_custom_voice"):
             return
+        if self.config.get("custom_voice_uri", "").strip():
+            logger.info("[sf_tts] 使用预置音色 URI，跳过本地音频加载")
+            return
         ref_path = self.config.get("reference_audio_path", "").strip()
         if ref_path and os.path.exists(ref_path):
             try:
@@ -55,11 +58,16 @@ class SfTTSPlugin(Star):
         gain = float(self.config.get("gain", 0))
 
         if use_custom:
-            if not self._ref_b64:
+            uri = self.config.get("custom_voice_uri", "").strip()
+            if uri:
+                voice_param = uri
+                ref_text = ""
+            elif self._ref_b64:
+                voice_param = ""
+                ref_text = self._ref_text
+            else:
                 logger.warning("[sf_tts] 参考音频未加载")
                 return
-            voice_param = ""
-            ref_text = self._ref_text
         else:
             preset = self.config.get("preset_voice", "claire")
             if preset not in PRESET_VOICES:
@@ -87,7 +95,7 @@ class SfTTSPlugin(Star):
             "speed": speed,
             "gain": gain,
         }
-        if use_custom:
+        if use_custom and not self.config.get("custom_voice_uri", "").strip():
             body_base["references"] = [{"audio": self._ref_b64, "text": ref_text}]
 
         new_chain = []

@@ -41,6 +41,13 @@
         "hint": "仅在开启自定义音色时生效。音频中说话人的实际台词",
         "default": ""
     },
+    "custom_voice_uri": {
+        "type": "string",
+        "description": "预置音色 URI",
+        "hint": "上传参考音频后获得的 URI（speech:xxx:xxx:xxx）。填了则用 URI 轻量调用（推荐），不填则走本地 references 内联 base64。需实名认证",
+        "default": "",
+        "condition": { "use_custom_voice": true }
+    },
     "keep_text": {
         "type": "bool",
         "description": "附带原文",

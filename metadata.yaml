@@ -1,5 +1,5 @@
 name: astrbot_plugin_sf_tts
-desc: 硅基流动 CosyVoice2 TTS，支持预设音色与自定义声音克隆
+desc: 硅基流动 CosyVoice2 TTS，支持预设音色、预置 URI 与自定义声音克隆
 author: FlandreX
-version: 1.0.4
+version: 1.0.6
 repo: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
