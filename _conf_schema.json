@@ -54,11 +54,11 @@
         "hint": "开启后，在语音消息后附带输入给 TTS 的原文文本。关闭则只发送语音，不附带文本",
         "default": false
     },
-    "bracket_filter": {
-        "type": "bool",
-        "description": "过滤括号内容",
-        "hint": "开启后，TTS 朗读前自动移除（旁白）、【注】等内容。原文显示不受影响",
-        "default": true
+    "text_filter_regex": {
+        "type": "string",
+        "description": "正则过滤",
+        "hint": "自定义正则过滤文本内容，匹配到的内容会被移除（不影响 keep_text 原文）。留空则不过滤。示例：（[^（）]*）|\\([^()]*\\)|【[^【】]*】|\\[[^\\[\\]]*\\]|「[^「」]*」|『[^『』]*』",
+        "default": ""
     },
     "speed": {
         "type": "float",

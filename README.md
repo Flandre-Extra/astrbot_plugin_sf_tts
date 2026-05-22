@@ -2,7 +2,7 @@
 
 AstrBot 插件：硅基流动 CosyVoice2 TTS，支持系统预设音色、预置 URI 与自定义声音克隆。
 
-v1.0.6 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
+v1.0.7 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
 
 ## 安装
 
@@ -22,7 +22,7 @@ v1.0.6 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
 | `reference_audio_path` | string | 空 | 自定义模式下生效，本地 wav/mp3 绝对路径 |
 | `reference_text` | string | 空 | 自定义模式下生效，音频中实际台词 |
 | `keep_text` | bool | false | 附带原文（系统指令如 /reset 自动强制开启） |
-| `bracket_filter` | bool | true | TTS 朗读前过滤括号内容，原文不受影响 |
+| `text_filter_regex` | string | 空 | 自定义正则过滤 TTS 文本，匹配到的内容被移除。空则不过滤 |
 | `speed` | float | 1.0 | 语速 0.25~4.0 |
 | `gain` | float | 0 | 音量 -10~10 |
 | `timeout` | int | 120 | 请求超时（秒），长文本需 60s+ |
@@ -65,7 +65,7 @@ curl -X POST https://api.siliconflow.cn/v1/uploads/audio/voice \
 
 - TTS 生成语音 → keep_text 开启：语音 + 原文 / keep_text 关闭：仅语音
 - 系统指令（/reset /sid 等）自动强制保留原文，不受 keep_text 开关影响
-- `bracket_filter` 只过滤语音朗读内容，原文文本保持完整
+- `text_filter_regex` 只过滤语音朗读内容，原文文本保持完整
 - TTS 失败时原文不会被丢弃（v1.0.2+）
 
 ## 注意

@@ -8,12 +8,6 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api.event.filter import on_decorating_result
 from astrbot import logger
 
-try:
-    from .filter import strip_brackets
-except ImportError:
-    import filter as _filter_mod
-    strip_brackets = _filter_mod.strip_brackets
-
 PRESET_VOICES = ("alex", "anna", "bella", "benjamin", "charles", "claire", "david", "diana")
 
 
@@ -52,7 +46,6 @@ class SfTTSPlugin(Star):
             logger.warning("[sf_tts] 未配置 api_key")
             return
 
-        do_filter = self.config.get("bracket_filter", True)
         use_custom = self.config.get("use_custom_voice", False)
         model = self.config.get("model", "") or "FunAudioLLM/CosyVoice2-0.5B"
         api_base = self.config.get("api_base", "") or "https://api.siliconflow.cn/v1/audio/speech"
@@ -110,8 +103,13 @@ class SfTTSPlugin(Star):
 
             text = comp.text
             original = text
-            if do_filter:
-                text = strip_brackets(text)
+            filter_re = self.config.get("text_filter_regex", "").strip()
+            if filter_re:
+                try:
+                    text = re.sub(filter_re, "", text)
+                except re.error as e:
+                    logger.warning(f"[sf_tts] 正则过滤表达式错误: {e}")
+                    pass
             text = re.sub(
                 r"[\U0001F000-\U0001FFFF]|[\U00002700-\U000027BF]|[\U0001F300-\U0001F9FF]",
                 "", text,
