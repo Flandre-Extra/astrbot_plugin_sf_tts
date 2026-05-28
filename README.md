@@ -2,7 +2,7 @@
 
 AstrBot 插件：硅基流动 CosyVoice2 TTS，支持系统预设音色、预置 URI 与自定义声音克隆。
 
-v1.0.7 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
+v1.0.8 | 仓库: https://github.com/Flandre-Extra/astrbot_plugin_sf_tts
 
 ## 安装
 
@@ -65,6 +65,7 @@ curl -X POST https://api.siliconflow.cn/v1/uploads/audio/voice \
 
 - TTS 生成语音 → keep_text 开启：语音 + 原文 / keep_text 关闭：仅语音
 - 系统指令（/reset /sid 等）自动强制保留原文，不受 keep_text 开关影响
+- 主动消息不会被误判为系统指令，严格遵从 `keep_text` 配置（v1.0.8）
 - `text_filter_regex` 只过滤语音朗读内容，原文文本保持完整
 - TTS 失败时原文不会被丢弃（v1.0.2+）
 

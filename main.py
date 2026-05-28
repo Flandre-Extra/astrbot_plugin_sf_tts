@@ -11,7 +11,7 @@ from astrbot import logger
 PRESET_VOICES = ("alex", "anna", "bella", "benjamin", "charles", "claire", "david", "diana")
 
 
-@register("astrbot_plugin_sf_tts", "FlandreX", "硅基流动 CosyVoice2 TTS", "1.0.0")
+@register("astrbot_plugin_sf_tts", "FlandreX", "硅基流动 CosyVoice2 TTS", "1.0.8")
 class SfTTSPlugin(Star):
     def __init__(self, context: Context, config: dict = None):
         super().__init__(context)
@@ -78,7 +78,7 @@ class SfTTSPlugin(Star):
             return
 
         keep_text = self.config.get("keep_text", False)
-        if not keep_text and not result.is_llm_result():
+        if not keep_text and not result.is_llm_result() and event.message_str:
             keep_text = True
             logger.info("[sf_tts] 检测到系统指令，强制保留原文")
 
